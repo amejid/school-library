@@ -12,12 +12,13 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-- Ruby
+- Ruby runtime environment
 
 ### Setup
 
 - Clone the repository using `git clone git@github.com:amejid/school-library.git`
 - Navigate to the folder using `cd school-library`
+- Use this command to run the app `ruby main.rb`
 
 ## Author
 
