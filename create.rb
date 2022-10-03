@@ -1,18 +1,24 @@
+require_relative 'app'
+
 class Create
-  def call_app(app, choice)
+  def initialize
+    @app = App.new
+  end
+
+  def call_app(choice)
     case choice
     when 1
-      app.list_books
+      @app.list_books
     when 2
-      app.list_people
+      @app.list_people
     when 3
-      app.create_person
+      @app.create_person
     when 4
-      app.create_book
+      @app.create_book
     when 5
-      app.create_rental
+      @app.create_rental
     when 6
-      app.list_rentals
+      @app.list_rentals
     else
       puts 'Invalid input'
     end

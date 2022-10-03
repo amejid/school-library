@@ -1,7 +1,7 @@
-require_relative 'app'
+require_relative 'create'
 
 def main
-  app = App.new
+  create = Create.new
   puts 'Welcome to School Library App!'
 
   loop do
@@ -15,7 +15,7 @@ def main
       break
     end
 
-    call_app(app, choice)
+    create.call_app(choice)
   end
 end
 
