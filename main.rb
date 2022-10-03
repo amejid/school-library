@@ -1,26 +1,7 @@
-require_relative 'app'
-
-def call_app(app, choice)
-  case choice
-  when 1
-    app.list_books
-  when 2
-    app.list_people
-  when 3
-    app.create_person
-  when 4
-    app.create_book
-  when 5
-    app.create_rental
-  when 6
-    app.list_rentals
-  else
-    puts 'Invalid input'
-  end
-end
+require_relative 'create'
 
 def main
-  app = App.new
+  create = Create.new
   puts 'Welcome to School Library App!'
 
   loop do
@@ -34,7 +15,7 @@ def main
       break
     end
 
-    call_app(app, choice)
+    create.call_app(choice)
   end
 end
 
