@@ -2,12 +2,14 @@ require_relative 'student'
 require_relative 'teacher'
 require_relative 'book'
 require_relative 'rental'
+require_relative 'preserve'
 
 class App
   def initialize
-    @books = []
-    @people = []
-    @rentals = []
+    @preserve = Preserve.new
+    @books = @preserve.load_books
+    @people = @preserve.load_people
+    @rentals = @preserve.load_rentals
   end
 
   def create_person
@@ -31,6 +33,7 @@ class App
     author = gets.chomp
 
     book = Book.new(title, author)
+    @preserve.save_book(book)
     @books.push(book)
     puts 'Book created successfully'
   end
@@ -46,8 +49,8 @@ class App
     date = gets.chomp
 
     rental = Rental.new(date, @books[book_index], @people[person_index])
+    @preserve.save_rental(rental)
     @rentals.push(rental)
-
     puts 'Rental created successfully'
   end
 
@@ -83,7 +86,8 @@ class App
     print 'Has parent permission? [Y/N]: '
     permission = gets.chomp.downcase == 'y'
 
-    student = Student.new(nil, age, name, permission)
+    student = Student.new(nil, nil, age, name, permission)
+    @preserve.save_person(student)
     @people.push(student)
     puts 'Person created successfully'
   end
@@ -96,7 +100,8 @@ class App
     print 'Specialization: '
     specialization = gets.chomp
 
-    teacher = Teacher.new(specialization, age, name)
+    teacher = Teacher.new(specialization, nil, age, name)
+    @preserve.save_person(teacher)
     @people.push(teacher)
     puts 'Person created successfully'
   end
