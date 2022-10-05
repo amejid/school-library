@@ -1,14 +1,15 @@
-require 'json'
 require_relative 'student'
 require_relative 'teacher'
 require_relative 'book'
 require_relative 'rental'
+require_relative 'preserve'
 
 class App
   def initialize
-    @books = []
-    @people = []
-    @rentals = []
+    @preserve = Preserve.new
+    @books = @preserve.load_books
+    @people = @preserve.load_people
+    @rentals = @preserve.load_rentals
   end
 
   def create_person
@@ -32,7 +33,7 @@ class App
     author = gets.chomp
 
     book = Book.new(title, author)
-    save_book(book)
+    @preserve.save_book(book)
     @books.push(book)
     puts 'Book created successfully'
   end
@@ -48,7 +49,7 @@ class App
     date = gets.chomp
 
     rental = Rental.new(date, @books[book_index], @people[person_index])
-    save_rental(rental)
+    @preserve.save_rental(rental)
     @rentals.push(rental)
     puts 'Rental created successfully'
   end
@@ -75,83 +76,6 @@ class App
     person.rentals.each_with_index { |rental, i| puts "#{i}) Book: #{rental.book.title}, Date: #{rental.date}" }
   end
 
-  def save_book(book)
-    if File.exist?('books.json')
-      books_loaded = JSON.parse(File.read('books.json'))
-      books_loaded << { title: book.title, author: book.author }
-      File.write('books.json', JSON.pretty_generate(books_loaded))
-    else
-      File.write('books.json', JSON.pretty_generate([{ title: book.title, author: book.author }]))
-    end
-  end
-
-  def load_books
-    return unless File.exist?('books.json')
-
-    books_loaded = JSON.parse(File.read('books.json'))
-    books_loaded.each do |book|
-      new_book = Book.new(book['title'], book['author'])
-      @books << new_book
-    end
-  end
-
-  def save_person(person)
-    new_person = nil
-    if person.instance_of? Student
-      new_person = { id: person.id, age: person.age, name: person.name, parent_permission: person.parent_permission,
-                     type: 'student' }
-    elsif person.instance_of? Teacher
-      new_person = { id: person.id, age: person.age, name: person.name, specialization: person.specialization,
-                     type: 'teacher' }
-    end
-    if File.exist?('people.json')
-      people_loaded = JSON.parse(File.read('people.json'))
-      people_loaded << new_person
-      File.write('people.json', JSON.pretty_generate(people_loaded))
-    else
-      File.write('people.json', JSON.pretty_generate([new_person]))
-    end
-  end
-
-  def load_people
-    return unless File.exist?('people.json')
-
-    people_loaded = JSON.parse(File.read('people.json'))
-    people_loaded.each do |person|
-      case person['type']
-      when 'student'
-        new_person = Student.new(nil, person['id'], person['age'], person['name'], person['parent_permission'])
-        @people << new_person
-      when 'teacher'
-        new_person = Teacher.new(person['specialization'], person['id'], person['age'], person['name'])
-        @people << new_person
-      end
-    end
-  end
-
-  def save_rental(rental)
-    if File.exist?('rentals.json')
-      rentals_loaded = JSON.parse(File.read('rentals.json'))
-      rentals_loaded << { date: rental.date, person_id: rental.person.id, book: rental.book.title }
-      File.write('rentals.json', JSON.pretty_generate(rentals_loaded))
-    else
-      File.write('rentals.json',
-                 JSON.pretty_generate([{ date: rental.date, person_id: rental.person.id, book: rental.book.title }]))
-    end
-  end
-
-  def load_rentals
-    return unless File.exist?('rentals.json')
-
-    rentals_loaded = JSON.parse(File.read('rentals.json'))
-    rentals_loaded.each do |rental|
-      book = @books.select { |x| x.title == rental['book'] }[0]
-      person = @people.select { |x| x.id == rental['person_id'] }[0]
-      new_rental = Rental.new(rental['date'], book, person)
-      @rentals << new_rental
-    end
-  end
-
   private
 
   def create_student
@@ -163,7 +87,7 @@ class App
     permission = gets.chomp.downcase == 'y'
 
     student = Student.new(nil, nil, age, name, permission)
-    save_person(student)
+    @preserve.save_person(student)
     @people.push(student)
     puts 'Person created successfully'
   end
@@ -177,7 +101,7 @@ class App
     specialization = gets.chomp
 
     teacher = Teacher.new(specialization, nil, age, name)
-    save_person(teacher)
+    @preserve.save_person(teacher)
     @people.push(teacher)
     puts 'Person created successfully'
   end
