@@ -3,6 +3,8 @@ require_relative 'app'
 class Create
   def initialize
     @app = App.new
+    @app.load_books
+    @app.load_people
   end
 
   def call_app(choice)
