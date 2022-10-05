@@ -5,6 +5,8 @@ require_relative 'book'
 require_relative 'rental'
 
 class Preserve
+  attr_accessor :books, :people, :rentals
+
   def initialize
     @books = []
     @people = []
@@ -14,22 +16,21 @@ class Preserve
   def save_book(book)
     if File.exist?('books.json')
       books_loaded = JSON.parse(File.read('books.json'))
-      books_loaded << { title: book.title, author: book.author }
+      books_loaded << { id: book.id, title: book.title, author: book.author }
       File.write('books.json', JSON.pretty_generate(books_loaded))
     else
-      File.write('books.json', JSON.pretty_generate([{ title: book.title, author: book.author }]))
+      File.write('books.json', JSON.pretty_generate([{ id: book.id, title: book.title, author: book.author }]))
     end
   end
 
   def load_books
-    return [] unless File.exist?('books.json')
+    return unless File.exist?('books.json')
 
     books_loaded = JSON.parse(File.read('books.json'))
     books_loaded.each do |book|
-      new_book = Book.new(book['title'], book['author'])
+      new_book = Book.new(book['id'], book['title'], book['author'])
       @books << new_book
     end
-    @books
   end
 
   def save_person(person)
@@ -51,7 +52,7 @@ class Preserve
   end
 
   def load_people
-    return [] unless File.exist?('people.json')
+    return unless File.exist?('people.json')
 
     people_loaded = JSON.parse(File.read('people.json'))
     people_loaded.each do |person|
@@ -64,26 +65,25 @@ class Preserve
         @people << new_person
       end
     end
-    @people
   end
 
   def save_rental(rental)
     if File.exist?('rentals.json')
       rentals_loaded = JSON.parse(File.read('rentals.json'))
-      rentals_loaded << { date: rental.date, person_id: rental.person.id, book: rental.book.title }
+      rentals_loaded << { date: rental.date, person_id: rental.person.id, book_id: rental.book.id }
       File.write('rentals.json', JSON.pretty_generate(rentals_loaded))
     else
       File.write('rentals.json',
-                 JSON.pretty_generate([{ date: rental.date, person_id: rental.person.id, book: rental.book.title }]))
+                 JSON.pretty_generate([{ date: rental.date, person_id: rental.person.id, book_id: rental.book.id }]))
     end
   end
 
   def load_rentals
-    return [] unless File.exist?('rentals.json')
+    return unless File.exist?('rentals.json')
 
     rentals_loaded = JSON.parse(File.read('rentals.json'))
     rentals_loaded.each do |rental|
-      book = @books.select { |x| x.title == rental['book'] }[0]
+      book = @books.select { |x| x.id == rental['book_id'] }[0]
       person = @people.select { |x| x.id == rental['person_id'] }[0]
       new_rental = Rental.new(rental['date'], book, person)
       @rentals << new_rental
