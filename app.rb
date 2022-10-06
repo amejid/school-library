@@ -7,9 +7,9 @@ require_relative 'preserve'
 class App
   def initialize
     @preserve = Preserve.new
-    @books = @preserve.load_books
-    @people = @preserve.load_people
-    @rentals = @preserve.load_rentals
+    @preserve.load_books
+    @preserve.load_people
+    @preserve.load_rentals
   end
 
   def create_person
@@ -32,9 +32,9 @@ class App
     print 'Author: '
     author = gets.chomp
 
-    book = Book.new(title, author)
+    book = Book.new(nil, title, author)
     @preserve.save_book(book)
-    @books.push(book)
+    @preserve.books.push(book)
     puts 'Book created successfully'
   end
 
@@ -48,22 +48,22 @@ class App
     print 'Date: '
     date = gets.chomp
 
-    rental = Rental.new(date, @books[book_index], @people[person_index])
+    rental = Rental.new(date, @preserve.books[book_index], @preserve.people[person_index])
     @preserve.save_rental(rental)
-    @rentals.push(rental)
+    @preserve.rentals.push(rental)
     puts 'Rental created successfully'
   end
 
   def list_books
-    return puts 'No books found!' if @books.empty?
+    return puts 'No books found!' if @preserve.books.empty?
 
-    @books.each_with_index { |book, i| puts "#{i}) Title: #{book.title}, Author: #{book.author}" }
+    @preserve.books.each_with_index { |book, i| puts "#{i}) Title: #{book.title}, Author: #{book.author}" }
   end
 
   def list_people
-    return puts 'No people found!' if @people.empty?
+    return puts 'No people found!' if @preserve.people.empty?
 
-    @people.each_with_index do |person, i|
+    @preserve.people.each_with_index do |person, i|
       puts "#{i}) [#{person.class}] Name: #{person.name}, Age: #{person.age}, ID: #{person.id}"
     end
   end
@@ -72,8 +72,10 @@ class App
     puts 'Enter ID of the person'
     list_people
     person_id = gets.chomp.to_i
-    person = @people.select { |p| p.id == person_id }[0]
-    person.rentals.each_with_index { |rental, i| puts "#{i}) Book: #{rental.book.title}, Date: #{rental.date}" }
+    person = @preserve.people.select { |p| p.id == person_id }[0]
+    person.rentals.each_with_index do |rental, i|
+      puts "#{i}) Book title: #{rental.book.title}, Book author: #{rental.book.author}, Date: #{rental.date}"
+    end
   end
 
   private
@@ -88,7 +90,7 @@ class App
 
     student = Student.new(nil, nil, age, name, permission)
     @preserve.save_person(student)
-    @people.push(student)
+    @preserve.people.push(student)
     puts 'Person created successfully'
   end
 
@@ -102,7 +104,7 @@ class App
 
     teacher = Teacher.new(specialization, nil, age, name)
     @preserve.save_person(teacher)
-    @people.push(teacher)
+    @preserve.people.push(teacher)
     puts 'Person created successfully'
   end
 end
