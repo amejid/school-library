@@ -17,7 +17,7 @@ describe Book do
     it 'should create a rental for the respective book' do
       new_book = Book.new(nil, 'Javascript Adv', 'Amejid')
       person = Person.new(23, nil, 'Sydney')
-      new_book.rent_book(person,'09/12/2021')
+      new_book.rent_book(person, '09/12/2021')
       expect(new_book.rentals.length).to eq 1
     end
   end
